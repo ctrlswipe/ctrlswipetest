@@ -22,44 +22,43 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         html, body { overflow-x: hidden; width: 100%; position: relative; -webkit-tap-highlight-color: transparent; }
+        .hoverable { transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important; display: inline-block; }
+        .hoverable:hover { transform: scale(1.05) !important; z-index: 50; position: relative; }
         .glass-panel { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.8); }
         .gradient-blob-magenta { position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, #EC008C 0%, transparent 70%); opacity: 0.15; filter: blur(150px); z-index: 0; pointer-events: none; }
         .gradient-blob-cyan { position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, #00AEEF 0%, transparent 70%); opacity: 0.15; filter: blur(150px); z-index: 0; pointer-events: none; }
 
-        /* CAROUSEL STYLES - OPTIMIZED (NO BLUR) */
+        /* CAROUSEL STYLES */
         .carousel-container { perspective: 1000px; overflow: hidden; display: flex; justify-content: center; align-items: center; position: relative; height: 750px; }
         
         .carousel-item { 
             position: absolute; 
-            transition: all 0.4s ease-out; /* Slightly faster transition */
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15); 
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2); 
             overflow: hidden;
-            background: black; 
+            background: transparent; 
             transform-style: preserve-3d;
             will-change: transform, opacity; 
-            /* Removed backdrop-filter to reduce lag */
         }
         
         .c-active { 
             z-index: 20; 
             transform: translateX(0) scale(1); 
+            filter: blur(0) brightness(1); 
             opacity: 1; 
-            filter: brightness(1); /* Reset brightness */
         }
         .c-prev { 
             z-index: 10; 
             transform: translateX(-100%) scale(0.85) rotateY(15deg); 
+            filter: blur(3px) brightness(0.7); 
             opacity: 0.8; 
-            /* Removed blur, kept brightness for depth */
-            filter: brightness(0.6); 
             pointer-events: none; 
         }
         .c-next { 
             z-index: 10; 
             transform: translateX(100%) scale(0.85) rotateY(-15deg); 
+            filter: blur(3px) brightness(0.7); 
             opacity: 0.8; 
-            /* Removed blur, kept brightness for depth */
-            filter: brightness(0.6); 
             pointer-events: none; 
         }
         .c-hidden { z-index: 0; transform: scale(0.5); opacity: 0; pointer-events: none; display: none; }
@@ -82,6 +81,36 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.15); 
             position: relative;
             background: black;
+        }
+
+        /* Video Play Button Overlay */
+        .play-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.3);
+            transition: opacity 0.3s;
+            cursor: pointer;
+            z-index: 40;
+        }
+        .play-overlay:hover {
+            background: rgba(0,0,0,0.1);
+        }
+        .play-overlay i {
+            font-size: 4rem;
+            color: white;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+            transition: transform 0.2s;
+        }
+        .play-overlay:hover i {
+            transform: scale(1.1);
+        }
+        /* Hide overlay when video is playing (handled by JS class toggling) */
+        .playing .play-overlay {
+            opacity: 0;
+            pointer-events: none;
         }
 
         /* --- CURSOR STYLES --- */
@@ -136,34 +165,6 @@
         .aspect-4-5 { aspect-ratio: 4/5; }
         .aspect-9-16 { aspect-ratio: 9/16; }
         .aspect-16-9 { aspect-ratio: 16/9; }
-        
-        /* YouTube Embed Styling */
-        .yt-story-wrapper, .yt-video-wrapper {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
-        .yt-story-wrapper iframe {
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-        }
-        .yt-video-wrapper iframe {
-            width: 100%;
-            height: 100%;
-            pointer-events: auto;
-        }
-        .yt-story-overlay {
-            position: absolute;
-            inset: 0;
-            z-index: 10;
-            background: transparent;
-        }
-        
-        /* Utility for hover effect removal */
-        .hoverable { transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important; display: inline-block; }
-        .hoverable:hover { transform: scale(1.05) !important; z-index: 50; position: relative; }
     </style>
 </head>
 <body class="bg-gray-50 text-cmyk-k font-sans selection:bg-cmyk-m selection:text-white">
@@ -215,13 +216,11 @@
          <div class="gradient-blob-magenta" style="top: 10%; left: -200px;"></div>
          <div class="gradient-blob-cyan" style="bottom: 20%; right: -200px;"></div>
          
-        <!-- Spacing Reduced: space-y-32 -> space-y-16 md:space-y-24 -->
-        <div class="max-w-7xl mx-auto relative z-10 space-y-16 md:space-y-24">
+        <div class="max-w-7xl mx-auto relative z-10 space-y-32">
             
             <!-- HEADER -->
             <header class="text-center max-w-4xl mx-auto">
-                <!-- Title adjusted for mobile: text-4xl -> text-6xl -->
-                <h1 class="text-5xl md:text-8xl font-display font-black mb-6 leading-tight break-words" id="work-title">
+                <h1 class="text-6xl md:text-8xl font-display font-black mb-6 leading-none" id="work-title">
                     <span class="text-cmyk-k">OUR</span> <span class="text-cmyk-c">WORK</span>
                 </h1>
                 <p class="text-xl text-gray-600 mb-12 font-regular" data-key="work-desc">
@@ -233,20 +232,19 @@
             <section id="graphics">
                 <div class="flex items-center gap-4 mb-8">
                     <div class="h-[3px] bg-cmyk-c flex-grow"></div>
-                    <!-- Title scalable: text-2xl on mobile -->
-                    <h2 class="text-2xl md:text-5xl font-black text-center uppercase" data-key="sec-graphics">SOCIAL MEDIA POSTS</h2>
+                    <h2 class="text-3xl md:text-5xl font-black text-center uppercase" data-key="sec-graphics">SOCIAL MEDIA POSTS</h2>
                     <div class="h-[3px] bg-cmyk-c flex-grow"></div>
                 </div>
 
                 <!-- Desktop Carousel (Graphics) -->
                 <div class="hidden lg:flex relative carousel-container h-[700px]" id="carousel-graphics">
-                    <button class="absolute left-10 z-30 bg-white/80 hover:bg-white p-4 rounded-full shadow-lg text-cmyk-m transition-colors cursor-pointer" onclick="moveCarousel('graphics', -1)">
+                    <button class="absolute left-10 z-30 bg-white/80 p-4 rounded-full shadow-lg text-cmyk-m hover:scale-110 transition-transform hoverable" onclick="moveCarousel('graphics', -1)">
                         <i class="fa-solid fa-chevron-left text-2xl"></i>
                     </button>
                     <div class="carousel-track relative w-full h-full flex justify-center items-center" id="track-graphics">
                         <!-- Items injected by JS -->
                     </div>
-                    <button class="absolute right-10 z-30 bg-white/80 hover:bg-white p-4 rounded-full shadow-lg text-cmyk-m transition-colors cursor-pointer" onclick="moveCarousel('graphics', 1)">
+                    <button class="absolute right-10 z-30 bg-white/80 p-4 rounded-full shadow-lg text-cmyk-m hover:scale-110 transition-transform hoverable" onclick="moveCarousel('graphics', 1)">
                         <i class="fa-solid fa-chevron-right text-2xl"></i>
                     </button>
                 </div>
@@ -261,26 +259,19 @@
             <section id="stories">
                 <div class="flex items-center gap-4 mb-8">
                     <div class="h-[3px] bg-cmyk-m flex-grow"></div>
-                    <h2 class="text-2xl md:text-5xl font-black text-center uppercase" data-key="sec-stories">STORIES</h2>
+                    <h2 class="text-3xl md:text-5xl font-black text-center uppercase" data-key="sec-stories">STORIES</h2>
                     <div class="h-[3px] bg-cmyk-m flex-grow"></div>
                 </div>
 
                 <!-- Desktop Carousel (Stories) -->
                 <div class="hidden lg:flex relative carousel-container h-[800px]" id="carousel-stories">
-                    
-                    <!-- Gradient Layers (Only for Stories) -->
-                    <div class="absolute left-0 top-0 bottom-0 w-32 z-20 bg-gradient-to-r from-gray-50 to-transparent pointer-events-none"></div>
-                    <div class="absolute right-0 top-0 bottom-0 w-32 z-20 bg-gradient-to-l from-gray-50 to-transparent pointer-events-none"></div>
-
-                    <button class="absolute left-10 z-30 bg-white/80 hover:bg-white p-4 rounded-full shadow-lg text-cmyk-m transition-colors cursor-pointer" onclick="moveCarousel('stories', -1)">
+                    <button class="absolute left-10 z-30 bg-white/80 p-4 rounded-full shadow-lg text-cmyk-m hover:scale-110 transition-transform hoverable" onclick="moveCarousel('stories', -1)">
                         <i class="fa-solid fa-chevron-left text-2xl"></i>
                     </button>
-                    
                     <div class="carousel-track relative w-full h-full flex justify-center items-center" id="track-stories">
                         <!-- Items injected by JS -->
                     </div>
-                    
-                    <button class="absolute right-10 z-30 bg-white/80 hover:bg-white p-4 rounded-full shadow-lg text-cmyk-m transition-colors cursor-pointer" onclick="moveCarousel('stories', 1)">
+                    <button class="absolute right-10 z-30 bg-white/80 p-4 rounded-full shadow-lg text-cmyk-m hover:scale-110 transition-transform hoverable" onclick="moveCarousel('stories', 1)">
                         <i class="fa-solid fa-chevron-right text-2xl"></i>
                     </button>
                 </div>
@@ -295,20 +286,19 @@
             <section id="video">
                 <div class="flex items-center gap-4 mb-8">
                     <div class="h-[3px] bg-cmyk-y flex-grow"></div>
-                    <h2 class="text-2xl md:text-5xl font-black text-center uppercase" data-key="sec-video">VIDEO PRODUCTION</h2>
+                    <h2 class="text-3xl md:text-5xl font-black text-center uppercase" data-key="sec-video">VIDEO PRODUCTION</h2>
                     <div class="h-[3px] bg-cmyk-y flex-grow"></div>
                 </div>
 
                 <!-- Desktop Carousel (Video) -->
                 <div class="hidden lg:flex relative carousel-container h-[800px]" id="carousel-video">
-                    <!-- Note: No gradient layers here as requested -->
-                    <button class="absolute left-10 z-30 bg-white/80 hover:bg-white p-4 rounded-full shadow-lg text-cmyk-m transition-colors cursor-pointer" onclick="moveCarousel('video', -1)">
+                    <button class="absolute left-10 z-30 bg-white/80 p-4 rounded-full shadow-lg text-cmyk-m hover:scale-110 transition-transform hoverable" onclick="moveCarousel('video', -1)">
                         <i class="fa-solid fa-chevron-left text-2xl"></i>
                     </button>
                     <div class="carousel-track relative w-full h-full flex justify-center items-center" id="track-video">
                         <!-- Items injected by JS -->
                     </div>
-                    <button class="absolute right-10 z-30 bg-white/80 hover:bg-white p-4 rounded-full shadow-lg text-cmyk-m transition-colors cursor-pointer" onclick="moveCarousel('video', 1)">
+                    <button class="absolute right-10 z-30 bg-white/80 p-4 rounded-full shadow-lg text-cmyk-m hover:scale-110 transition-transform hoverable" onclick="moveCarousel('video', 1)">
                         <i class="fa-solid fa-chevron-right text-2xl"></i>
                     </button>
                 </div>
@@ -323,7 +313,7 @@
             <section id="webdesign">
                 <div class="flex items-center gap-4 mb-8">
                     <div class="h-[3px] bg-cmyk-k flex-grow"></div>
-                    <h2 class="text-2xl md:text-5xl font-black text-center uppercase" data-key="sec-web">WEB DESIGN</h2>
+                    <h2 class="text-3xl md:text-5xl font-black text-center uppercase" data-key="sec-web">WEB DESIGN</h2>
                     <div class="h-[3px] bg-cmyk-k flex-grow"></div>
                 </div>
                 
@@ -331,20 +321,17 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 px-4 md:px-0">
                     <a href="https://ctrlswipe.github.io/antalya/" target="_blank" class="block hoverable hover:scale-[1.02] transition-transform duration-300 shadow-xl group">
                         <div class="w-full aspect-square overflow-hidden bg-gray-100">
-                            <!-- Updated to WebP -->
-                            <img src="web-design/1.webp" loading="lazy" alt="Website 1" class="w-full h-full object-contain bg-white" onerror="this.src='https://placehold.co/800x800/00AEEF/ffffff?text=Website+1'">
+                            <img src="web-design/1.png" alt="Website 1" class="w-full h-full object-contain bg-white" onerror="this.src='https://placehold.co/800x800/00AEEF/ffffff?text=Website+1'">
                         </div>
                     </a>
                     <a href="https://ctrlswipe.github.io/clinic/" target="_blank" class="block hoverable hover:scale-[1.02] transition-transform duration-300 shadow-xl group">
                          <div class="w-full aspect-square overflow-hidden bg-gray-100">
-                             <!-- Updated to WebP -->
-                            <img src="web-design/2.webp" loading="lazy" alt="Website 2" class="w-full h-full object-contain bg-white" onerror="this.src='https://placehold.co/800x800/EC008C/ffffff?text=Website+2'">
+                            <img src="web-design/2.png" alt="Website 2" class="w-full h-full object-contain bg-white" onerror="this.src='https://placehold.co/800x800/EC008C/ffffff?text=Website+2'">
                         </div>
                     </a>
                     <a href="https://ctrlswipe.github.io/lodge/" target="_blank" class="block hoverable hover:scale-[1.02] transition-transform duration-300 shadow-xl group">
                          <div class="w-full aspect-square overflow-hidden bg-gray-100">
-                             <!-- Updated to WebP -->
-                            <img src="web-design/3.webp" loading="lazy" alt="Website 3" class="w-full h-full object-contain bg-white" onerror="this.src='https://placehold.co/800x800/FFF200/000000?text=Website+3'">
+                            <img src="web-design/3.png" alt="Website 3" class="w-full h-full object-contain bg-white" onerror="this.src='https://placehold.co/800x800/FFF200/000000?text=Website+3'">
                         </div>
                     </a>
                 </div>
@@ -354,7 +341,7 @@
             <section id="captions" class="pb-12">
                  <div class="flex items-center gap-4 mb-8">
                     <div class="h-[3px] bg-cmyk-c flex-grow"></div>
-                    <h2 class="text-2xl md:text-5xl font-black text-center uppercase" data-key="sec4-title">CAPTIONS & ADS</h2>
+                    <h2 class="text-3xl md:text-5xl font-black text-center uppercase" data-key="sec4-title">CAPTIONS & ADS</h2>
                     <div class="h-[3px] bg-cmyk-c flex-grow"></div>
                 </div>
                  <p class="text-center text-gray-600 mb-12 max-w-2xl mx-auto font-medium" data-key="sec4-desc">We write words that sell, convince, and connect.</p>
@@ -393,27 +380,46 @@
     </footer>
     
     <script>
-        // CONFIG - Updated to WebP and Added Video Config
+        // CONFIG
         const config = {
-            graphics: { count: 7, path: 'graphics-portfolio/', ext: '.webp', type: 'image' },
-            video: { count: 8, path: 'videos/', ext: '.mp4', type: 'video' }
+            graphics: { count: 8, path: 'graphics-portfolio/', ext: '.png', type: 'image' },
+            stories: { count: 12, path: 'story/', mixed: true }, // Logic: Odd=png, Even=mp4
+            video: { count: 8, path: 'videoproduction/video', ext: '.mp4', type: 'video' }
         };
 
-        // Custom config for Stories: ONLY 5 LOCAL IMAGES (WebP)
-        const storyItems = [
-            { type: 'local', src: 'story/1.webp' },
-            { type: 'local', src: 'story/2.webp' },
-            { type: 'local', src: 'story/3.webp' },
-            { type: 'local', src: 'story/4.webp' },
-            { type: 'local', src: 'story/5.webp' }
-        ];
-
-        // State tracking
         const state = {
             graphics: 0,
             stories: 0,
             video: 0
         };
+
+        // NEW: Function to play video when overlay clicked
+        function playVideo(btn) {
+            const container = btn.closest('.group'); // Find parent wrapper
+            const video = container.querySelector('video');
+            const overlay = container.querySelector('.play-overlay');
+            const muteBtn = container.querySelector('.mute-btn'); // optional, if we add one
+
+            if (video) {
+                // Play from start as requested (or just play if you prefer from 4s, but usually 'thumbnail' implies start)
+                video.currentTime = 0; 
+                video.muted = false; // Unmute on explicit play
+                video.play().then(() => {
+                    container.classList.add('playing'); // Hide overlay via CSS
+                }).catch(e => console.log('Play error:', e));
+            }
+        }
+
+        // Helper function for mute toggling (optional, if we keep mute button visible after play)
+        function toggleMute(btn) {
+            const video = btn.parentElement.querySelector('video');
+            const icon = btn.querySelector('i');
+            if (video) {
+                video.muted = !video.muted;
+                icon.className = video.muted ? 'fa-solid fa-volume-xmark' : 'fa-solid fa-volume-high';
+            }
+            event.stopPropagation();
+        }
 
         // GENERATE CONTENT
         function generateItems() {
@@ -426,26 +432,30 @@
                 
                 trackGraphics.innerHTML += `
                     <div class="carousel-item aspect-4-5 w-[320px] md:w-[450px]" data-index="${i-1}">
-                        <img src="${src}" loading="lazy" class="w-full h-full object-contain" onerror="this.src='${fallback}'">
+                        <img src="${src}" class="w-full h-full object-contain" onerror="this.src='${fallback}'">
                     </div>`;
                 
                 mobileGraphics.innerHTML += `
                     <div class="mobile-item aspect-4-5">
-                         <img src="${src}" loading="lazy" class="w-full h-full object-contain" onerror="this.src='${fallback}'">
+                         <img src="${src}" class="w-full h-full object-contain" onerror="this.src='${fallback}'">
                     </div>`;
             }
 
-            // 2. Stories (Custom Mix - Now Images Only)
+            // 2. Stories
             const trackStories = document.getElementById('track-stories');
             const mobileStories = document.getElementById('mobile-stories');
-            
-            storyItems.forEach((item, index) => {
-                let content = '';
-                const fallback = `https://placehold.co/450x800/EC008C/ffffff?text=Story+${index+1}`;
-                content = `<img src="${item.src}" loading="lazy" class="w-full h-full object-contain" onerror="this.src='${fallback}'">`;
+            for(let i=1; i<=config.stories.count; i++) {
+                const isVideo = (i % 2 === 0);
+                const ext = isVideo ? '.mp4' : '.png';
+                const src = `${config.stories.path}${i}${ext}`;
+                const fallback = `https://placehold.co/450x800/EC008C/ffffff?text=Story+${i}`;
+                
+                const content = isVideo 
+                    ? `<video src="${src}" class="w-full h-full object-contain" autoplay muted loop playsinline preload="auto" onerror="this.style.display='none'; this.insertAdjacentHTML('afterend', '<img src=\\'${fallback}\\' class=\\'w-full h-full object-contain\\'>')"></video>`
+                    : `<img src="${src}" class="w-full h-full object-contain" onerror="this.src='${fallback}'">`;
 
                 trackStories.innerHTML += `
-                    <div class="carousel-item aspect-9-16 w-[320px] md:w-[360px]" data-index="${index}">
+                    <div class="carousel-item aspect-9-16 w-[320px] md:w-[360px]" data-index="${i-1}">
                         ${content}
                     </div>`;
                 
@@ -453,31 +463,38 @@
                     <div class="mobile-item aspect-9-16">
                          ${content}
                     </div>`;
-            });
+            }
 
-            // 3. Video Production (LOCAL .mp4 with Controls)
+            // 3. Video Production (UPDATED for Thumbnail @ 4s & Play Button)
             const trackVideo = document.getElementById('track-video');
             const mobileVideo = document.getElementById('mobile-video');
-            
             for(let i=1; i<=config.video.count; i++) {
                 const src = `${config.video.path}${i}${config.video.ext}`;
                 const fallback = `https://placehold.co/450x800/FFF200/000000?text=Video+${i}`;
                 
-                // Video tag with controls, playsinline, and no autoplay on load (user controls it, or scroll triggers it)
-                const content = `
-                    <div class="w-full h-full bg-black">
-                         <video src="${src}" class="w-full h-full object-cover" controls playsinline preload="metadata" poster="${fallback}"></video>
+                // IMPORTANT: #t=4 sets the starting frame to 4s (simulated thumbnail)
+                // Removed autoplay. Added Play Overlay.
+                const videoHTML = `
+                    <div class="relative w-full h-full group">
+                        <video src="${src}#t=4" class="w-full h-full object-contain" muted loop playsinline preload="metadata" onerror="this.style.display='none'; this.parentElement.insertAdjacentHTML('afterend', '<img src=\\'${fallback}\\' class=\\'w-full h-full object-contain\\'>')"></video>
+                        
+                        <!-- Play Overlay -->
+                        <div class="play-overlay" onclick="playVideo(this)">
+                            <i class="fa-solid fa-play-circle text-white opacity-80 hover:opacity-100"></i>
+                        </div>
+
+                        <!-- Mute Button (Optional, appears after playing if we want, but let's keep it clean) -->
                     </div>
                 `;
-
+                
                 trackVideo.innerHTML += `
                     <div class="carousel-item aspect-9-16 w-[320px] md:w-[360px]" data-index="${i-1}">
-                        ${content}
+                        ${videoHTML}
                     </div>`;
                 
                 mobileVideo.innerHTML += `
                     <div class="mobile-item aspect-9-16">
-                         ${content}
+                         ${videoHTML}
                     </div>`;
             }
 
@@ -488,11 +505,7 @@
         }
 
         function moveCarousel(type, dir) {
-            let total = 0;
-            if (type === 'graphics') total = config.graphics.count;
-            else if (type === 'stories') total = storyItems.length;
-            else total = config.video.count; // Use local config count for videos
-
+            const total = type === 'graphics' ? config.graphics.count : (type === 'stories' ? config.stories.count : config.video.count);
             state[type] = (state[type] + dir + total) % total;
             updateCarousel(type);
         }
@@ -509,23 +522,30 @@
                 
                 item.className = item.className.replace(/c-active|c-prev|c-next|c-hidden/g, '').trim();
                 const video = item.querySelector('video');
-                
+                const container = item.querySelector('.group');
+
                 if (idx === activeIdx) {
                     item.classList.add('c-active');
-                    if (video) {
-                        // Attempt auto-play when active in carousel, but respect controls
-                        var playPromise = video.play();
-                        if (playPromise !== undefined) {
-                            playPromise.catch(error => {
-                                // Auto-play prevented (normal browsers behavior), user will use controls
-                                console.log("Auto-play prevented (Desktop):", error);
-                            });
-                        }
+                    // NO AUTOPLAY for Videos here anymore (user must click)
+                    // Stories can keep autoplay if desired, but user specifically asked for Video Production change.
+                    // Checking if this is the video section:
+                    if (type === 'video' && video) {
+                        // Ensure we are reset to thumbnail state if not already playing?
+                        // Actually, better to just let it sit paused.
+                    } else if (type === 'stories' && video) {
+                        video.play().catch(e => {}); // Stories keep autoplay
                     }
                 } else {
                     if(video) {
-                        video.pause(); 
-                        video.currentTime = 0;
+                        video.pause();
+                        // Reset to thumbnail state for next view
+                        if (type === 'video') {
+                             video.currentTime = 4; // Reset to 4s frame
+                             if(container) container.classList.remove('playing'); // Show play button again
+                             video.muted = true; // Reset mute
+                        } else {
+                            video.currentTime = 0;
+                        }
                     }
                     if (diff === -1) item.classList.add('c-prev');
                     else if (diff === 1) item.classList.add('c-next');
@@ -537,17 +557,27 @@
         function initMobileObserver() {
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
+                    // Mobile logic: Stories might autoplay, but Videos should wait for click now?
+                    // "make it so every video in the video section has a thumbnail"
+                    // So we disable autoplay for mobile video section too.
                     const video = entry.target.querySelector('video');
+                    const isVideoSection = entry.target.closest('#mobile-video');
+                    
                     if(video) {
                         if (entry.isIntersecting) {
-                             // On mobile, autoplay usually requires muted
-                             video.muted = true; 
-                             var p = video.play();
-                             if(p !== undefined) {
-                                 p.catch(e => console.log("Mobile scroll play error:", e));
+                             if (!isVideoSection) {
+                                 // Stories autoplay
+                                 video.muted = true;
+                                 video.play().catch(e => {});
                              }
+                             // Videos do nothing (show thumbnail)
                         } else {
                             video.pause();
+                            if(isVideoSection) {
+                                video.currentTime = 4;
+                                const container = video.parentElement;
+                                if(container) container.classList.remove('playing');
+                            }
                         }
                     }
                 });
@@ -574,7 +604,7 @@
                     document.addEventListener('mouseup', () => { cursorDot.classList.remove('active'); });
                     
                     setInterval(() => {
-                        const newHoverables = document.querySelectorAll('.hoverable, .carousel-item, a, button');
+                        const newHoverables = document.querySelectorAll('.hoverable, .carousel-item, a, button, .play-overlay');
                         newHoverables.forEach(el => {
                             if(!el.hasAttribute('data-hover-bound')) {
                                 el.addEventListener('mouseenter', () => { cursorDot.classList.add('hovered'); cursorRing.classList.add('hovered'); });

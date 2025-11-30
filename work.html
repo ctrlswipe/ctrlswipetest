@@ -41,7 +41,7 @@
             will-change: transform, opacity; 
         }
         
-        /* UPDATED: Removed blur, kept brightness/opacity for depth */
+        /* NO BLUR styles */
         .c-active { 
             z-index: 20; 
             transform: translateX(0) scale(1); 
@@ -51,14 +51,14 @@
         .c-prev { 
             z-index: 10; 
             transform: translateX(-100%) scale(0.85) rotateY(15deg); 
-            filter: brightness(0.7); /* Removed blur(3px) */
+            filter: brightness(0.7); 
             opacity: 0.8; 
             pointer-events: none; 
         }
         .c-next { 
             z-index: 10; 
             transform: translateX(100%) scale(0.85) rotateY(-15deg); 
-            filter: brightness(0.7); /* Removed blur(3px) */
+            filter: brightness(0.7); 
             opacity: 0.8; 
             pointer-events: none; 
         }
@@ -108,7 +108,6 @@
         .play-overlay:hover i {
             transform: scale(1.1);
         }
-        /* Hide overlay when video is playing */
         .playing .play-overlay {
             opacity: 0;
             pointer-events: none;
@@ -385,11 +384,11 @@
     </footer>
     
     <script>
-        // CONFIG - UPDATED: All images to .webp, video path to videos/
+        // CONFIG
         const config = {
-            graphics: { count: 8, path: 'graphics-portfolio/', ext: '.webp', type: 'image' },
-            stories: { count: 12, path: 'story/', mixed: true }, // Logic: Odd=webp, Even=mp4
-            video: { count: 8, path: 'videos/', ext: '.mp4', type: 'video' } // Updated path to videos/
+            graphics: { count: 7, path: 'graphics-portfolio/', ext: '.webp', type: 'image' },
+            stories: { count: 5, path: 'story/', ext: '.webp', type: 'image' },
+            video: { count: 8, path: 'videos/', ext: '.mp4', thumbPath: 'videos/thumbnails/', thumbExt: '.jpg', type: 'video' } 
         };
 
         const state = {
@@ -445,18 +444,14 @@
                     </div>`;
             }
 
-            // 2. Stories (Mixed WebP / MP4)
+            // 2. Stories (Images Only - WebP)
             const trackStories = document.getElementById('track-stories');
             const mobileStories = document.getElementById('mobile-stories');
             for(let i=1; i<=config.stories.count; i++) {
-                const isVideo = (i % 2 === 0);
-                const ext = isVideo ? '.mp4' : '.webp'; // Updated image ext to webp
-                const src = `${config.stories.path}${i}${ext}`;
+                const src = `${config.stories.path}${i}${config.stories.ext}`;
                 const fallback = `https://placehold.co/450x800/EC008C/ffffff?text=Story+${i}`;
                 
-                const content = isVideo 
-                    ? `<video src="${src}" class="w-full h-full object-contain" autoplay muted loop playsinline preload="auto" onerror="this.style.display='none'; this.insertAdjacentHTML('afterend', '<img src=\\'${fallback}\\' class=\\'w-full h-full object-contain\\'>')"></video>`
-                    : `<img src="${src}" class="w-full h-full object-contain" onerror="this.src='${fallback}'">`;
+                const content = `<img src="${src}" class="w-full h-full object-contain" onerror="this.src='${fallback}'">`;
 
                 trackStories.innerHTML += `
                     <div class="carousel-item aspect-9-16 w-[320px] md:w-[360px]" data-index="${i-1}">
@@ -469,17 +464,18 @@
                     </div>`;
             }
 
-            // 3. Video Production (Thumbnail @ 4s, Play Button, Path: videos/)
+            // 3. Video Production (Thumbnails from folder, Play Button, Path: videos/)
             const trackVideo = document.getElementById('track-video');
             const mobileVideo = document.getElementById('mobile-video');
             for(let i=1; i<=config.video.count; i++) {
                 const src = `${config.video.path}${i}${config.video.ext}`;
+                const thumb = `${config.video.thumbPath}${i}${config.video.thumbExt}`;
                 const fallback = `https://placehold.co/450x800/FFF200/000000?text=Video+${i}`;
                 
-                // #t=4 sets the starting frame to 4s
+                // Uses POSTER attribute for the JPG thumbnail
                 const videoHTML = `
                     <div class="relative w-full h-full group">
-                        <video src="${src}#t=4" class="w-full h-full object-contain" muted loop playsinline preload="metadata" onerror="this.style.display='none'; this.parentElement.insertAdjacentHTML('afterend', '<img src=\\'${fallback}\\' class=\\'w-full h-full object-contain\\'>')"></video>
+                        <video src="${src}" poster="${thumb}" class="w-full h-full object-contain" muted loop playsinline preload="metadata" onerror="this.style.display='none'; this.parentElement.insertAdjacentHTML('afterend', '<img src=\\'${fallback}\\' class=\\'w-full h-full object-contain\\'>')"></video>
                         
                         <!-- Play Overlay -->
                         <div class="play-overlay" onclick="playVideo(this)">
@@ -527,19 +523,16 @@
 
                 if (idx === activeIdx) {
                     item.classList.add('c-active');
-                    // NO AUTOPLAY for Videos here (user must click)
-                    if (type === 'video' && video) {
-                        // let it sit paused.
-                    } else if (type === 'stories' && video) {
-                        video.play().catch(e => {}); // Stories keep autoplay
-                    }
+                    // No autoplay logic here
                 } else {
                     if(video) {
                         video.pause();
                         if (type === 'video') {
-                             video.currentTime = 4; // Reset to 4s frame
-                             if(container) container.classList.remove('playing'); // Show play button again
-                             video.muted = true; // Reset mute
+                             video.currentTime = 0; 
+                             if(container) container.classList.remove('playing');
+                             video.muted = true;
+                             // This forces the poster to show again
+                             video.load(); 
                         } else {
                             video.currentTime = 0;
                         }
@@ -560,16 +553,15 @@
                     if(video) {
                         if (entry.isIntersecting) {
                              if (!isVideoSection) {
-                                 // Stories autoplay
-                                 video.muted = true;
-                                 video.play().catch(e => {});
+                                // Logic for other videos if any
                              }
                         } else {
                             video.pause();
                             if(isVideoSection) {
-                                video.currentTime = 4;
+                                video.currentTime = 0;
                                 const container = video.parentElement;
                                 if(container) container.classList.remove('playing');
+                                video.load(); // Reset to poster
                             }
                         }
                     }

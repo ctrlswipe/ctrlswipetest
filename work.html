@@ -41,23 +41,24 @@
             will-change: transform, opacity; 
         }
         
+        /* UPDATED: Removed blur, kept brightness/opacity for depth */
         .c-active { 
             z-index: 20; 
             transform: translateX(0) scale(1); 
-            filter: blur(0) brightness(1); 
+            filter: brightness(1); 
             opacity: 1; 
         }
         .c-prev { 
             z-index: 10; 
             transform: translateX(-100%) scale(0.85) rotateY(15deg); 
-            filter: blur(3px) brightness(0.7); 
+            filter: brightness(0.7); /* Removed blur(3px) */
             opacity: 0.8; 
             pointer-events: none; 
         }
         .c-next { 
             z-index: 10; 
             transform: translateX(100%) scale(0.85) rotateY(-15deg); 
-            filter: blur(3px) brightness(0.7); 
+            filter: brightness(0.7); /* Removed blur(3px) */
             opacity: 0.8; 
             pointer-events: none; 
         }
@@ -107,7 +108,7 @@
         .play-overlay:hover i {
             transform: scale(1.1);
         }
-        /* Hide overlay when video is playing (handled by JS class toggling) */
+        /* Hide overlay when video is playing */
         .playing .play-overlay {
             opacity: 0;
             pointer-events: none;
@@ -317,21 +318,24 @@
                     <div class="h-[3px] bg-cmyk-k flex-grow"></div>
                 </div>
                 
-                <!-- 3 Clickable Thumbnails -->
+                <!-- 3 Clickable Thumbnails (WebP) -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 px-4 md:px-0">
                     <a href="https://ctrlswipe.github.io/antalya/" target="_blank" class="block hoverable hover:scale-[1.02] transition-transform duration-300 shadow-xl group">
                         <div class="w-full aspect-square overflow-hidden bg-gray-100">
-                            <img src="web-design/1.png" alt="Website 1" class="w-full h-full object-contain bg-white" onerror="this.src='https://placehold.co/800x800/00AEEF/ffffff?text=Website+1'">
+                            <!-- UPDATED: .webp -->
+                            <img src="web-design/1.webp" alt="Website 1" class="w-full h-full object-contain bg-white" onerror="this.src='https://placehold.co/800x800/00AEEF/ffffff?text=Website+1'">
                         </div>
                     </a>
                     <a href="https://ctrlswipe.github.io/clinic/" target="_blank" class="block hoverable hover:scale-[1.02] transition-transform duration-300 shadow-xl group">
                          <div class="w-full aspect-square overflow-hidden bg-gray-100">
-                            <img src="web-design/2.png" alt="Website 2" class="w-full h-full object-contain bg-white" onerror="this.src='https://placehold.co/800x800/EC008C/ffffff?text=Website+2'">
+                            <!-- UPDATED: .webp -->
+                            <img src="web-design/2.webp" alt="Website 2" class="w-full h-full object-contain bg-white" onerror="this.src='https://placehold.co/800x800/EC008C/ffffff?text=Website+2'">
                         </div>
                     </a>
                     <a href="https://ctrlswipe.github.io/lodge/" target="_blank" class="block hoverable hover:scale-[1.02] transition-transform duration-300 shadow-xl group">
                          <div class="w-full aspect-square overflow-hidden bg-gray-100">
-                            <img src="web-design/3.png" alt="Website 3" class="w-full h-full object-contain bg-white" onerror="this.src='https://placehold.co/800x800/FFF200/000000?text=Website+3'">
+                            <!-- UPDATED: .webp -->
+                            <img src="web-design/3.webp" alt="Website 3" class="w-full h-full object-contain bg-white" onerror="this.src='https://placehold.co/800x800/FFF200/000000?text=Website+3'">
                         </div>
                     </a>
                 </div>
@@ -347,17 +351,18 @@
                  <p class="text-center text-gray-600 mb-12 max-w-2xl mx-auto font-medium" data-key="sec4-desc">We write words that sell, convince, and connect.</p>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div class="glass-panel p-8 border-2 border-black shadow-[8px_8px_0px_0px_#00AEEF] hoverable bg-white/80 transform transition-all hover:scale-105">
+                    <!-- UPDATED: Added rounded-3xl to cards -->
+                    <div class="glass-panel p-8 rounded-3xl border-2 border-black shadow-[8px_8px_0px_0px_#00AEEF] hoverable bg-white/80 transform transition-all hover:scale-105">
                         <div class="text-4xl mb-4 text-cmyk-c"><i class="fa-solid fa-bullhorn"></i></div>
                         <p class="text-2xl font-bold mb-2" data-key="box1-title">Ad Copy</p>
                         <p class="text-gray-600 text-sm" data-key="box1-desc">We know how to write ads that appeal to the public, creating hooks that stop the scroll and CTAs that convert.</p>
                     </div>
-                    <div class="glass-panel p-8 border-2 border-black shadow-[8px_8px_0px_0px_#00AEEF] hoverable bg-white/80 transform transition-all hover:scale-105">
+                    <div class="glass-panel p-8 rounded-3xl border-2 border-black shadow-[8px_8px_0px_0px_#00AEEF] hoverable bg-white/80 transform transition-all hover:scale-105">
                         <div class="text-4xl mb-4 text-cmyk-c"><i class="fa-solid fa-quote-right"></i></div>
                         <p class="text-2xl font-bold mb-2" data-key="box2-title">Engaging Captions</p>
                         <p class="text-gray-600 text-sm" data-key="box2-desc">From witty one-liners to storytelling long-form posts, we find the voice that fits your brand perfectly.</p>
                     </div>
-                    <div class="glass-panel p-8 border-2 border-black shadow-[8px_8px_0px_0px_#00AEEF] hoverable bg-white/80 transform transition-all hover:scale-105">
+                    <div class="glass-panel p-8 rounded-3xl border-2 border-black shadow-[8px_8px_0px_0px_#00AEEF] hoverable bg-white/80 transform transition-all hover:scale-105">
                         <div class="text-4xl mb-4 text-cmyk-c"><i class="fa-solid fa-video"></i></div>
                         <p class="text-2xl font-bold mb-2" data-key="box3-title">Video Scripts</p>
                         <p class="text-gray-600 text-sm" data-key="box3-desc">Structuring your reels and TikToks for maximum retention, ensuring your message is heard.</p>
@@ -380,11 +385,11 @@
     </footer>
     
     <script>
-        // CONFIG
+        // CONFIG - UPDATED: All images to .webp, video path to videos/
         const config = {
-            graphics: { count: 8, path: 'graphics-portfolio/', ext: '.png', type: 'image' },
-            stories: { count: 12, path: 'story/', mixed: true }, // Logic: Odd=png, Even=mp4
-            video: { count: 8, path: 'videoproduction/video', ext: '.mp4', type: 'video' }
+            graphics: { count: 8, path: 'graphics-portfolio/', ext: '.webp', type: 'image' },
+            stories: { count: 12, path: 'story/', mixed: true }, // Logic: Odd=webp, Even=mp4
+            video: { count: 8, path: 'videos/', ext: '.mp4', type: 'video' } // Updated path to videos/
         };
 
         const state = {
@@ -395,13 +400,12 @@
 
         // NEW: Function to play video when overlay clicked
         function playVideo(btn) {
-            const container = btn.closest('.group'); // Find parent wrapper
+            const container = btn.closest('.group'); 
             const video = container.querySelector('video');
             const overlay = container.querySelector('.play-overlay');
-            const muteBtn = container.querySelector('.mute-btn'); // optional, if we add one
 
             if (video) {
-                // Play from start as requested (or just play if you prefer from 4s, but usually 'thumbnail' implies start)
+                // Play from start as requested
                 video.currentTime = 0; 
                 video.muted = false; // Unmute on explicit play
                 video.play().then(() => {
@@ -410,7 +414,7 @@
             }
         }
 
-        // Helper function for mute toggling (optional, if we keep mute button visible after play)
+        // Helper function for mute toggling
         function toggleMute(btn) {
             const video = btn.parentElement.querySelector('video');
             const icon = btn.querySelector('i');
@@ -423,7 +427,7 @@
 
         // GENERATE CONTENT
         function generateItems() {
-            // 1. Graphics
+            // 1. Graphics (WebP)
             const trackGraphics = document.getElementById('track-graphics');
             const mobileGraphics = document.getElementById('mobile-graphics');
             for(let i=1; i<=config.graphics.count; i++) {
@@ -441,12 +445,12 @@
                     </div>`;
             }
 
-            // 2. Stories
+            // 2. Stories (Mixed WebP / MP4)
             const trackStories = document.getElementById('track-stories');
             const mobileStories = document.getElementById('mobile-stories');
             for(let i=1; i<=config.stories.count; i++) {
                 const isVideo = (i % 2 === 0);
-                const ext = isVideo ? '.mp4' : '.png';
+                const ext = isVideo ? '.mp4' : '.webp'; // Updated image ext to webp
                 const src = `${config.stories.path}${i}${ext}`;
                 const fallback = `https://placehold.co/450x800/EC008C/ffffff?text=Story+${i}`;
                 
@@ -465,15 +469,14 @@
                     </div>`;
             }
 
-            // 3. Video Production (UPDATED for Thumbnail @ 4s & Play Button)
+            // 3. Video Production (Thumbnail @ 4s, Play Button, Path: videos/)
             const trackVideo = document.getElementById('track-video');
             const mobileVideo = document.getElementById('mobile-video');
             for(let i=1; i<=config.video.count; i++) {
                 const src = `${config.video.path}${i}${config.video.ext}`;
                 const fallback = `https://placehold.co/450x800/FFF200/000000?text=Video+${i}`;
                 
-                // IMPORTANT: #t=4 sets the starting frame to 4s (simulated thumbnail)
-                // Removed autoplay. Added Play Overlay.
+                // #t=4 sets the starting frame to 4s
                 const videoHTML = `
                     <div class="relative w-full h-full group">
                         <video src="${src}#t=4" class="w-full h-full object-contain" muted loop playsinline preload="metadata" onerror="this.style.display='none'; this.parentElement.insertAdjacentHTML('afterend', '<img src=\\'${fallback}\\' class=\\'w-full h-full object-contain\\'>')"></video>
@@ -482,8 +485,6 @@
                         <div class="play-overlay" onclick="playVideo(this)">
                             <i class="fa-solid fa-play-circle text-white opacity-80 hover:opacity-100"></i>
                         </div>
-
-                        <!-- Mute Button (Optional, appears after playing if we want, but let's keep it clean) -->
                     </div>
                 `;
                 
@@ -526,19 +527,15 @@
 
                 if (idx === activeIdx) {
                     item.classList.add('c-active');
-                    // NO AUTOPLAY for Videos here anymore (user must click)
-                    // Stories can keep autoplay if desired, but user specifically asked for Video Production change.
-                    // Checking if this is the video section:
+                    // NO AUTOPLAY for Videos here (user must click)
                     if (type === 'video' && video) {
-                        // Ensure we are reset to thumbnail state if not already playing?
-                        // Actually, better to just let it sit paused.
+                        // let it sit paused.
                     } else if (type === 'stories' && video) {
                         video.play().catch(e => {}); // Stories keep autoplay
                     }
                 } else {
                     if(video) {
                         video.pause();
-                        // Reset to thumbnail state for next view
                         if (type === 'video') {
                              video.currentTime = 4; // Reset to 4s frame
                              if(container) container.classList.remove('playing'); // Show play button again
@@ -557,9 +554,6 @@
         function initMobileObserver() {
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
-                    // Mobile logic: Stories might autoplay, but Videos should wait for click now?
-                    // "make it so every video in the video section has a thumbnail"
-                    // So we disable autoplay for mobile video section too.
                     const video = entry.target.querySelector('video');
                     const isVideoSection = entry.target.closest('#mobile-video');
                     
@@ -570,7 +564,6 @@
                                  video.muted = true;
                                  video.play().catch(e => {});
                              }
-                             // Videos do nothing (show thumbnail)
                         } else {
                             video.pause();
                             if(isVideoSection) {
